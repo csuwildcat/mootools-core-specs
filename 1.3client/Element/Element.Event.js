@@ -97,5 +97,13 @@ describe('Element.Event', function(){
 
 		expect(calls).toBe(7);
 	});
+	
+	it('should modify an attribute on the element and fire the DOM mutation event', function(){
+		var callback = jasmine.createSpy(),
+			el = new Element('div').addEvent('modified', callback);
+		
+		el.setAttribute('testing', '123');
+		expect(callback).toHaveBeenCalled();
+	});
 
 });
