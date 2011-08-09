@@ -1,11 +1,59 @@
 /*
----
-name: Function Specs
-description: n/a
-requires: [Core/Function]
-provides: [Function.Specs]
-...
+Specs for Function.js
+License: MIT-style license.
 */
+
+describe('Function.attempt', function(){
+
+	it('should return the result of the first successful function without executing successive functions', function(){
+		var calls = 0;
+		var attempt = Function.attempt(function(){
+			calls++;
+			throw new Exception();
+		}, function(){
+			calls++;
+			return 'success';
+		}, function(){
+			calls++;
+			return 'moo';
+		});
+		expect(calls).toEqual(2);
+		expect(attempt).toEqual('success');
+	});
+
+	it('should return null when no function succeeded', function(){
+		var calls = 0;
+		var attempt = Function.attempt(function(){
+			calls++;
+			return I_invented_this();
+		}, function(){
+			calls++;
+			return uninstall_ie();
+		});
+		expect(calls).toEqual(2);
+		expect(attempt).toBeNull();
+	});
+
+	it('should call the function without raising an exception', function(){
+		var fnc = function(){
+			throw 'up';
+		};
+		fnc.attempt();
+	});
+
+	it("should return the function's return value", function(){
+		var spy = jasmine.createSpy().andReturn('hello world!');
+		expect(spy.attempt()).toEqual('hello world!');
+	});
+
+	it('should return null if the function raises an exception', function(){
+		var fnc = function(){
+			throw 'up';
+		};
+		expect(fnc.attempt()).toBeNull();
+	});
+
+});
 
 describe('Function.bind', function(){
 
@@ -26,16 +74,18 @@ describe('Function.bind', function(){
 
 		expect(spy).not.toHaveBeenCalled();
 		expect(f('additional', 'arguments')).toEqual('something');
+		expect(spy).toHaveBeenCalledWith('arg', 'additional', 'arguments');
 		expect(spy.mostRecentCall.object).toEqual(binding);
 	});
 
 	it('should return the function bound to an object with multiple arguments', function(){
 		var binding = {some: 'binding'};
 		var spy = jasmine.createSpy().andReturn('something');
-		var f = spy.bind(binding, ['foo', 'bar']);
+		var f = spy.bind(binding, 'foo', 'bar');
 
 		expect(spy).not.toHaveBeenCalled();
 		expect(f('additional', 'arguments')).toEqual('something');
+		expect(spy).toHaveBeenCalledWith('foo', 'bar', 'additional', 'arguments');
 		expect(spy.mostRecentCall.object).toEqual(binding);
 	});
 
@@ -48,7 +98,7 @@ describe('Function.pass', function(){
 		var fnc = spy.pass('an argument');
 		expect(spy).not.toHaveBeenCalled();
 		expect(fnc('additional', 'arguments')).toBe('the result');
-		expect(spy).toHaveBeenCalledWith('an argument');
+		expect(spy).toHaveBeenCalledWith('an argument', 'additional', 'arguments');
 		expect(spy.callCount).toBe(1);
 	});
 
@@ -59,7 +109,7 @@ describe('Function.pass', function(){
 		expect(spy).not.toHaveBeenCalled();
 		expect(fnc('additional', 'arguments')).toBe('the result');
 		expect(spy.mostRecentCall.object).toEqual(binding);
-		expect(spy).toHaveBeenCalledWith('multiple', 'arguments');
+		expect(spy).toHaveBeenCalledWith('multiple', 'arguments', 'additional', 'arguments');
 	});
 
 });
@@ -70,29 +120,6 @@ describe('Function.extend', function(){
 		var fnc = (function(){}).extend({a: 1, b: 'c'});
 		expect(fnc.a).toEqual(1);
 		expect(fnc.b).toEqual('c');
-	});
-
-});
-
-describe('Function.attempt', function(){
-
-	it('should call the function without raising an exception', function(){
-		var fnc = function(){
-			throw 'up';
-		};
-		fnc.attempt();
-	});
-
-	it("should return the function's return value", function(){
-		var spy = jasmine.createSpy().andReturn('hello world!');
-		expect(spy.attempt()).toEqual('hello world!');
-	});
-
-	it('should return null if the function raises an exception', function(){
-		var fnc = function(){
-			throw 'up';
-		};
-		expect(fnc.attempt()).toBeNull();
 	});
 
 });
@@ -122,6 +149,7 @@ describe('Function.delay', function(){
 		clearTimeout(timerB);
 
 		this.clock.tick(250);
+
 		expect(spyA.callCount).toBe(1);
 		expect(spyB.callCount).toBe(0);
 	});
@@ -129,8 +157,8 @@ describe('Function.delay', function(){
 	it('should pass parameter 0', function(){
 		var spy = jasmine.createSpy();
 		spy.delay(50, null, 0);
-		
 		this.clock.tick(100);
+
 		expect(spy).toHaveBeenCalledWith(0);
 	});
 
@@ -138,9 +166,11 @@ describe('Function.delay', function(){
 		var argumentCount = null;
 		var spy = function(){
 			argumentCount = arguments.length;
-		};
+		}
 		spy.delay(50);
+
 		this.clock.tick(100);
+
 		expect(argumentCount).toEqual(0);
 	});
 
@@ -156,7 +186,7 @@ describe('Function.periodical', function(){
 		this.clock.reset();
 		this.clock.restore();
 	});
-
+	
 	it('should return an interval pointer', function(){
 		var spy = jasmine.createSpy('Bond');
 
@@ -172,14 +202,14 @@ describe('Function.periodical', function(){
 		expect(spy).not.toHaveBeenCalled();
 
 		this.clock.tick(100);
-		
+
 		expect(spy).not.toHaveBeenCalled();
 	});
 
 	it('should pass parameter 0', function(){
 		var spy = jasmine.createSpy();
 		var timer = spy.periodical(10, null, 0);
-		
+
 		this.clock.tick(100);
 
 		expect(spy).toHaveBeenCalledWith(0);
@@ -190,8 +220,9 @@ describe('Function.periodical', function(){
 		var argumentCount = null;
 		var spy = function(){
 			argumentCount = arguments.length;
-		};
+		}
 		var timer = spy.periodical(50);
+
 		this.clock.tick(100);
 
 		expect(argumentCount).toEqual(0);

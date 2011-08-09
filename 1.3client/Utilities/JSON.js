@@ -1,3 +1,11 @@
+/*
+---
+name: JSON Specs
+description: n/a
+requires: [Core/JSON]
+provides: [JSON.Specs]
+...
+*/
 describe('JSON', function(){
 
 	it('should encode and decode an object', function(){
@@ -8,16 +16,18 @@ describe('JSON', function(){
 			n: 1,
 			f: 3.14,
 			b: false,
-			n: null
+			nil: null,
+			o: {
+				a: 1,
+				b: [1, 2],
+				c: {
+					a: 2,
+					b: 3
+				}
+			}
 		};
 
 		expect(JSON.decode(JSON.encode(object))).toEqual(object);
-	});
-
-	it('should encode an unknown type as null', function(){
-		expect(JSON.encode({
-			$family: function(){ return 'some unknown type' }
-		})).toBeNull();
 	});
 
 });

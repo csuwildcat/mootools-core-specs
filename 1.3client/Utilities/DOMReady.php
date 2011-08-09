@@ -26,6 +26,11 @@ flushPause();
 <head>
 <script>
 
+var testElement = document.createElement('div'),
+	hasOperationAborted = (
+		testElement.innerHTML = '<!--[if lt IE 8]>1<![endif]-->', !!+testElement.innerText
+	);
+
 var	MESSAGES = document.createElement('div')
 ,	thingsThatHappened = {}
 
@@ -76,7 +81,7 @@ var domreadyCallbacks = []
 function DomReady(fn){
 	domreadyCallbacks.push(fn)
 }
-<?php if (!isset($_GET['plain'])):
+ <?php if (!isset($_GET['plain'])):
 	$core = dirname(__FILE__) . '/../../../';
 	require $core . 'Packager/packager.php';
 
@@ -85,7 +90,7 @@ function DomReady(fn){
 else: ?>
 document.write('<scr'+'ipt src="./DOMReady.js?' + (new Date) + '"><'+'/script>');
 document.write('<scr'+'ipt src="../../../Source/Utilities/DOMReady.js?' + (new Date) + '"><'+'/script>');
-<?php endif; ?>
+ <?php endif; ?>
 </script>
 
 <script>
@@ -99,26 +104,26 @@ var loadScript = function(type){
 			}
 		}
 	}).inject(document.body);
-	console.log('>> ' + type + ': Loading JavaScript');
+	log('>> ' + type + ': Loading JavaScript');
 };
 
 window.addEvent('load', function(){
 	loadScript('load');
 	
 	window.LOADED = true
-	somethingHappened('MooTools load', function(){
+	somethingHappened('<i>MooTools load</i>', function(){
 		return !!window.READY
 	})
 });
 window.addEvent('domready', function(){
 	loadScript('domready');
 
-	window.READY = true
-	somethingHappened('MooTools domready', isNotLoaded)
+	window.READY = +new Date
+	somethingHappened('<i>MooTools domready</i>', isNotLoaded)
 });
 DomReady(function(){
-	window.READY = true
-	somethingHappened('MooTools domready', isNotLoaded)
+	window.READY = +new Date
+	somethingHappened('<i>MooTools domready</i>', isNotLoaded)
 });
 </script>
 	<meta http-equiv=Content-type content="text/html; charset=utf-8">
@@ -152,7 +157,9 @@ p{
 	margin:0 !important;
 	padding: 1ex 1em;
 }
-
+i{
+	font-size: 125%;
+}
 .PASS{background:#0f0;}
 .FAIL{background:#f00;}
 
@@ -165,8 +172,8 @@ small{
 
 </style>
 <script>
-if (document.addEventListener) document.addEventListener('DOMContentLoaded', function(){ window.READY = true; somethingHappened('DOMContentLoaded (addEventListener)', isNotLoaded) }, false)
-if (document.attachEvent) document.attachEvent('onDOMContentLoaded', function(){ window.READY = true; somethingHappened('DOMContentLoaded (attachEvent)', isNotLoaded) }, false)
+if (document.addEventListener) document.addEventListener('DOMContentLoaded', function(){ window.READY = +new Date; somethingHappened('DOMContentLoaded (addEventListener)', isNotLoaded) }, false)
+if (document.attachEvent) document.attachEvent('onDOMContentLoaded', function(){ window.READY = +new Date; somethingHappened('DOMContentLoaded (attachEvent)', isNotLoaded) }, false)
 
 if (document.addEventListener) document.addEventListener('readyStateChange', function(){ somethingHappened('readyStateChange (addEventListener)', document.readyState) }, false)
 if (document.attachEvent) document.attachEvent('onReadyStateChange', function(){ somethingHappened('onReadyStateChange (attachEvent)', document.readyState) }, false)
@@ -253,17 +260,17 @@ function pollAugmentBody(){
 // //  //  //  //  //  //  //  //  //  //  //  //  //  //  //  //  //  //  // //
 
 var readyTests = {
-	readyState: function(){return document.readyState}
+	"document.readyState ==": function(){return document.readyState}
 	
-	,'has body': function(){return document.body ?'Yes':'No'}
+	,'document.body exists?': function(){return document.body ?'Yes':'No'}
 	
-	,parsed: function(){return window.PARSED ?'Yes':'No'}
-	,img_onload: function(){return window.IMG_ONLOAD ?'Yes':'No'}
-	,img_onload_uncached: function(){return window.IMG_ONLOAD_UNCACHED ?'Yes':'No'}
-	,ready: function(){return window.READY ?'Yes':'No'}
-	,onload: function(){return window.ONLOAD ?'Yes':'No'}
+	,"All page content loaded and parsed?": function(){return window.PARSED ?'Yes':'No'}
+	,"cached IMG onload fired?": function(){return window.IMG_ONLOAD ?'Yes':'No'}
+	,"uncached IMG onload fired?": function(){return window.IMG_ONLOAD_UNCACHED ?'Yes':'No'}
+	,"document ready?": function(){return !!window.READY ?'Yes':'No'}
+	,"onload fired?": function(){return !!window.ONLOAD ?'Yes':'No'}
 	
-	,"doScroll": function(){
+	,"el.doScroll()": function(){
 		try {
 			TEST_ELEMENT.doScroll()
 			return 'Yes'
@@ -273,7 +280,7 @@ var readyTests = {
 		}
 	}
 	
-	,"body.doScroll": function(){
+	,"body.doScroll('left')": function(){
 		try {
 			document.body.doScroll('left')
 			return 'Yes'
@@ -283,12 +290,25 @@ var readyTests = {
 		}
 	}
 	
-	,'isFramed': function(){
+	,'isFramed?': function(){
 		return isFramed() ?'Yes':'No'
 	}
 	
-	,'is top frame': function(){
+	,'Is top frame?': function(){
 		return window.window === window.top ?'Yes':'No'
+	}
+}
+
+if (!hasOperationAborted) readyTests['Can augment body?'] = function(){
+	try {
+		document.body.appendChild(
+			document.createTextNode('Augmented the body! ' + (+new Date - START_TIME))
+		)
+		document.body.removeChild(document.body.lastChild)
+		return 'Yes'
+	}
+	catch (e){
+		return 'No'
 	}
 }
 
@@ -318,7 +338,7 @@ function poll(){
 	
 	if (shouldBeReady)
 	somethingHappened('Should be Ready!', function(){
-		return window.READY ?true:'Not yet...'
+		return !!window.READY ?true:'Not yet...'
 	})
 	
 	if (hasDifferentResults) readyTestResults.push(results)
@@ -368,8 +388,8 @@ poll()
 </script>
 </head>
 <body
-	onload="window.ONLOAD = true; somethingHappened('body[onload]', function(){return window.READY})"
-	onDOMContentLoaded="window.READY = true; somethingHappened('DOMContentLoaded body[onDOMContentLoaded]', isNotLoaded)"
+	onload="window.ONLOAD = +new Date; somethingHappened('body[onload] ' + (window.READY ? (window.ONLOAD - window.READY) + 'ms after Ready' : ''), function(){return !!window.READY})"
+	onDOMContentLoaded="window.READY = +new Date; somethingHappened('DOMContentLoaded body[onDOMContentLoaded]', isNotLoaded)"
 	onReadyStateChange="somethingHappened('body[onReadyStateChange]')"
 >
 
@@ -379,9 +399,9 @@ poll()
 
 <hr>
 
-<script> somethingHappened('before serverSide flush/sleep') </script>
+<script> somethingHappened('<i>Before serverSide flush/sleep</i> <hr>') </script>
  <?php flushPause(1.0); ?>
-<script> somethingHappened('after serverSide flush/sleep') </script>
+<script> somethingHappened('<i>After serverSide flush/sleep</i> <hr>') </script>
 
 <small>
 <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
@@ -424,7 +444,7 @@ poll()
  }
 ?>
 <script>
-somethingHappened('Last &lt;SCRIPT&gt; on page')
+somethingHappened('<i>All page content loaded and parsed! (Last &lt;SCRIPT&gt; on page)</i> <hr>')
 window.PARSED = true
 </script>
 

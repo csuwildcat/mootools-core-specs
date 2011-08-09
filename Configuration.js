@@ -20,7 +20,19 @@ Configuration.presets = {
 	'core-1.3 + core-1.2': {
 		sets: ['1.2', 'core-1.3-base', 'core-1.3-client'],
 		source: ['core-1.3-base', 'core-1.3-client']
-	}
+	},
+	'mobile core-1.3': {
+		sets: ['core-1.3-base', 'core-1.3-client'],
+		source: ['1.3mobile']
+	},
+	'core-1.4': {
+		sets: ['1.2', 'core-1.3-base', 'core-1.3-client', 'core-1.4-client'],
+		source: ['core-1.4-base', 'core-1.4-client']
+	},
+	'core-2.0': {
+		sets: ['core-2.0-base', 'core-2.0-client'],
+		source: ['core-2.0-base', 'core-2.0-client']
+	},
 };
 
 Configuration.defaultPresets = {
@@ -55,12 +67,14 @@ Configuration.sets = {
 		path: '1.3client/',
 		files: [
 			'Core/Core',
+			'Types/Object',
 			'Browser/Browser',
 			'Class/Class.Extras',
 			'Element/Element',
 			'Element/NewElement',
 			'Element/Element.Event',
 			'Element/Element.Dimensions',
+			'Element/Element.Style',
 			'Element/IFrame',
 			'Request/Request',
 			'Request/Request.HTML',
@@ -69,6 +83,33 @@ Configuration.sets = {
 			'Fx/Fx.Morph',
 			'Utilities/Cookie',
 			'Utilities/JSON'
+		]
+	},
+
+	'core-1.4-client': {
+		path: '1.4client/',
+		files: [
+			'Element/Element.Event'
+		]
+	},
+
+	'core-2.0-base': {
+		path: '2.0base/',
+		files: [
+			'Core/Core',
+
+			'Types/Array',
+			'Types/Function',
+			'Types/Number',
+			'Types/String',
+			'Types/Object',
+		]
+	},
+
+	'core-2.0-client': {
+		path: '2.0client/',
+		files: [
+			'Browser/Browser'
 		]
 	}
 };
@@ -111,7 +152,7 @@ Configuration.source = {
 
 			'Request/Request',
 			'Request/Request.HTML',
-			'Request/Request.JSON',
+			'Request/Request.JSON'
 		]
 	},
 
@@ -156,6 +197,111 @@ Configuration.source = {
 
 			'Fx/Fx.CSS',
 			'Fx/Fx.Tween',
+			'Fx/Fx.Morph',
+
+			'Request/Request',
+			'Request/Request.HTML',
+			'Request/Request.JSON'
+		]
+	},
+
+	'core-1.4-base': {
+		path: '../Source/',
+		files: [
+			'Core/Core',
+
+			'Types/Array',
+			'Types/Function',
+			'Types/Number',
+			'Types/String',
+			'Types/Object',
+
+			'Class/Class',
+			'Class/Class.Extras',
+
+			'Fx/Fx',
+			'Fx/Fx.Transitions'
+		]
+	},
+
+	'core-1.4-client': {
+		path: '../Source/',
+		files: [
+			'Types/Event',
+
+			'Browser/Browser',
+
+			'Slick/Slick.Parser',
+			'Slick/Slick.Finder',
+
+			'Element/Element',
+			'Element/Element.Event',
+			'Element/Element.Delegation',
+			'Element/Element.Style',
+			'Element/Element.Dimensions',
+
+			'Utilities/DOMReady',
+			'Utilities/JSON',
+			'Utilities/Cookie',
+			'Utilities/Swiff',
+
+			'Fx/Fx.CSS',
+			'Fx/Fx.Tween',
+			'Fx/Fx.Morph',
+
+			'Request/Request',
+			'Request/Request.HTML',
+			'Request/Request.JSON'
+		]
+	},
+
+	'1.3mobile': {
+		path: './',
+		files: ['mootools-core-mobile']
+	},
+
+	'core-2.0-base': {
+		path: '../Source/',
+		files: [
+			'Core/Core',
+
+			'Types/Array',
+			'Types/Function',
+			'Types/Number',
+			'Types/String',
+			'Types/Object',
+
+			'Utilities/Accessor',
+			'Utilities/Color',
+			'Utilities/Table',
+			'Utilities/JSON',
+
+			'Class/Class',
+			'Class/Chain',
+			'Class/Events',
+			'Class/Options',
+			'Class/Store',
+
+			'Fx/Fx'
+		]
+	},
+
+	'core-2.0-client': {
+		path: '../Source/',
+		files: [
+			'Browser/Browser',
+
+			'Slick/Slick.Parser',
+			'Slick/Slick.Finder',
+
+			'Element/Element',
+
+			'Browser/Event',
+
+			'Element/Element.Style',
+
+			'Utilities/DOMReady',
+
 			'Fx/Fx.Morph',
 
 			'Request/Request',
