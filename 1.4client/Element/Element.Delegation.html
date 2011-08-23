@@ -106,13 +106,13 @@
 			<script>
 
 				var secondLI = document.getElement('#list li:nth-child(2)');
+				var list = document.id('list');
 				var listListener = function(event, matched){
 					log('Matched element is <li>', matched.get('tag') == 'li');
-					log('`this` == arguments[1]', matched == this);
+					log('`this` == list', list == this);
 					if (matched == secondLI) log('2nd event target tag == p', event.target.get('tag') == 'div');
 					log('---');
 				};
-				var list = $('list');
 				var listAdd = list.addEvent.pass(['click:relay(li)', listListener], list);
 				var listRemove = list.removeEvent.pass(['click:relay(li)', listListener], list);
 				listAdd();
@@ -149,7 +149,7 @@
 				Click or tab to one of the input fields and the focus and blur
 				events should fire.
 			</p>
-			
+
 			<div id="focus_blur">
 				<input type="text" /><br />
 				<input type="text" />
@@ -260,7 +260,7 @@
 					log('Paste', true);
 				});
 			</script>
-			
+
 		</div>
 
 	</body>
