@@ -10,8 +10,9 @@ describe('Element.set opacity', function(){
 
 	it('should return the opacity of an Element without seting it before', function(){
 		var div = new Element('div');
-		if (document.html.style.opacity == null) div.style.filter = 'alpha(opacity=40)';
-		else div.style.opacity = 0.4;
+		if (document.html.style.opacity != null) div.style.opacity = 0.4;
+		else if (document.html.style.filter != null) div.style.filter = 'alpha(opacity=40)';
+		else div.setStyle('opacity', 0.4); // We only have visibility available but opacity should still report a 0..1 value
 		expect(div.get('opacity') == 0.4).toBeTruthy();
 	});
 
@@ -29,7 +30,7 @@ describe('Element.set opacity', function(){
 		div.set('opacity', 1e-20);
 		div.set('opacity', 0.5);
 		expect(+div.get('opacity')).toEqual(0.5);
-		if (document.html.style.filter != null && !window.opera && !Syn.browser.gecko){
+		if (Browser.ie && Browser.version <= 8){
 			expect(div.style.filter.split('opacity').length - 1).toEqual(1);
 		}
 	});

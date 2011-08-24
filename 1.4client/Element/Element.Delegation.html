@@ -40,6 +40,7 @@
 				position: absolute;
 				overflow: auto;
 				padding-bottom: 150px;
+				right: 0;
 			}
 
 			#aside {
@@ -107,13 +108,13 @@
 			<script>
 
 				var secondLI = document.getElement('#list li:nth-child(2)');
+				var list = document.id('list');
 				var listListener = function(event, matched){
 					log('Matched element is <li>', matched.get('tag') == 'li');
-					log('`this` == arguments[1]', matched == this);
+					log('`this` == list', list == this);
 					if (matched == secondLI) log('2nd event target tag == p', event.target.get('tag') == 'div');
 					log('---');
 				};
-				var list = $('list');
 				var listAdd = list.addEvent.pass(['click:relay(li)', listListener], list);
 				var listRemove = list.removeEvent.pass(['click:relay(li)', listListener], list);
 				listAdd();
@@ -150,7 +151,7 @@
 				Click or tab to one of the input fields and the focus and blur
 				events should fire.
 			</p>
-			
+
 			<div id="focus_blur">
 				<input type="text" /><br />
 				<input type="text" />
@@ -205,7 +206,9 @@
 			<h1>Change</h1>
 
 			<p>
-				Change the text. When you blur the input field, the change event should fire for both the form and the input fields
+				Change the text. When you blur the input field, the change event
+				should fire for both the element which wraps the input fields
+				and bubble to it, and the input fields itself.
 			</p>
 
 			<div id="change">
@@ -229,6 +232,9 @@
 					var type = this.get('type');
 					log('delegated change, ' + this[type == 'radio' || type == 'checkbox' ? 'checked' : 'value'], true);
 				});
+				$(document.body).addEvent('change:relay(#change)', function(){
+					log('change bubbles', true);
+				});
 			</script>
 
 			<h1>Select</h1>
@@ -248,6 +254,18 @@
 				$('select').addEvent('select:relay(form)', function(event){
 					log('select', true);
 					log('`event.target.tagName == input`', event.target.get('tag') == 'input');
+				});
+			</script>
+
+			<h1>Paste</h1>
+
+			<div id="paste">
+				<textarea></textarea>
+			</div>
+
+			<script>
+				$('paste').addEvent('paste:relay(textarea)', function(event){
+					log('Paste', true);
 				});
 			</script>
 

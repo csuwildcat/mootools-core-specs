@@ -7,26 +7,18 @@ provides: [Element.Event.Specs]
 ...
 */
 
-describe('Custom Event Extensions', function(){
+describe('Element.Event.js', function(){
 	// This is private API. Do not use.
 
-	it('should allow base to be a function', function(){
-		var called;
-		var callback = jasmine.createSpy();
+	// Restore native fireEvent in IE for Syn
+	var createElement = function(tag, props){
+		var el = document.createElement(tag),
+			fireEvent = el.fireEvent;
 
-		Element.Events.myClick = {
-			base: function(){
-				return 'click';
-			}
-		};
-
-		var div = new Element('div').addEvent('myClick', callback).inject(document.body);
-
-		simulateEvent('click', [{}, div], function(){
-			expect(callback).toHaveBeenCalled();
-			div.destroy();
-		});
-	});
+		$(el);
+		el.fireEvent = fireEvent;
+		return el.set(props);
+	};
 
 	it('should pass the name of the custom event to the callbacks', function(){
 		var callbacks = 0;
@@ -38,10 +30,7 @@ describe('Custom Event Extensions', function(){
 		}
 		Element.Events.customEvent = {
 
-			base: function(type){
-				expect(type).toEqual('customEvent');
-				return 'click';
-			},
+			base: 'click',
 
 			condition: function(event, type){
 				fn(null, type);
@@ -53,7 +42,7 @@ describe('Custom Event Extensions', function(){
 
 		};
 
-		var div = new Element('div').addEvent('customEvent', callback).inject(document.body);
+		var div = createElement('div').addEvent('customEvent', callback).inject(document.body);
 
 		simulateEvent('click', [{}, div], function(){
 			expect(callback).toHaveBeenCalled();
